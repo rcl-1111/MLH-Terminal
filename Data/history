@@ -1,0 +1,34 @@
+ls
+help
+version
+exit
+conversion
+help
+config
+exit
+conversion
+reload
+cd
+pwd
+cd MLH-Terminal
+ls
+cd File
+ls
+rm -rf Packages
+ls
+exit
+ls
+help
+info
+exit
+conversion
+Conversion
+exit
+conversion
+conversion /storage/emulated/0/Pictures/1761485032209_edit_828759114730821.jpg png /storage/emulated/0/
+pkg install ffmpeg imagemagick sox -y
+conversion /storage/emulated/0/Pictures/1761485032209_edit_828759114730821.jpg png /storage/emulated/0/
+pkg install bc -y
+conversion /storage/emulated/0/Pictures/1761485032209_edit_828759114730821.jpg png ~/
+reload
+exit
