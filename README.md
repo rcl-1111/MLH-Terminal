@@ -1,5 +1,8 @@
-# MLH-Terminal
+# MLH-Terminal-Android
 
+Welcome to MLH-Terminal-Android
+
+欢迎使用MLH-Terminal-Android
 
 A homemade command line where you can use the original Termux command. Here we have added some new commands that you can runA homemade command line where you can use the original Termux command. Here we have added some new commands that you can run.
 
