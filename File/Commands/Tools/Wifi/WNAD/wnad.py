@@ -46,6 +46,41 @@ def main():
     # 启用 Windows 控制台 ANSI 颜色支持
     setup_console()
 
+    # 检查是否显式请求 TUI 模式
+    _force_tui = "-t" in sys.argv or "--tui" in sys.argv
+
+    # 无参数或 -t 标志 → 进入交互式 TUI Shell（仿 deepseek-tui）
+    if (_force_tui or len(sys.argv) == 1) and "WNAD_TUI" not in os.environ:
+        # 清理 -t/--tui 避免 argparse 报错（仅当显式请求时）
+        if _force_tui:
+            sys.argv = [a for a in sys.argv if a not in ("-t", "--tui")]
+
+        # 确保 wnad.py 所在目录在路径中
+        _wnad_dir = os.path.dirname(os.path.abspath(__file__))
+        if _wnad_dir not in sys.path:
+            sys.path.insert(0, _wnad_dir)
+
+        try:
+            from wnad_tui import run_tui
+        except ImportError as e:
+            # 检查是不是依赖缺失
+            _miss = ""
+            for _mod in ["rich", "prompt_toolkit"]:
+                try:
+                    __import__(_mod)
+                except ImportError:
+                    _miss += f" {_mod}"
+            if _miss:
+                print(f" [×] 缺少依赖:{_miss}")
+                print(f"     运行: pip install{_miss}")
+            else:
+                print(f" [×] TUI 模块加载失败: {e}")
+            print(" [*] 回退到原始命令行模式\n")
+            # 继续执行下面的 argparse 逻辑
+        else:
+            run_tui()
+            return
+
     parser = argparse.ArgumentParser(
         description="WNAD - Wireless Network Attack and Defense",
         add_help=False,
@@ -274,10 +309,27 @@ def main():
     p_mon.add_argument("--scan", type=str, nargs="?", const="", help="扫描 WiFi AP")
     p_mon.add_argument("--capture", type=int, nargs="?", const=50, help="抓取 802.11 包")
 
+    # ── 命令有效性检查（中文错误提示） ──
+    _first_arg = next((a for a in sys.argv[1:] if not a.startswith('-')), None)
+    _valid_cmds = {
+        "info","lookup","scan","trace","speedtest","discover","dns",
+        "geoip","mac","subnet","ping","proxy","netstat","arpwatch",
+        "httpd","wifi","nmap","defense","usb","crack","air","wifite",
+        "arp","flood","monitor",
+    }
+    if _first_arg and _first_arg not in _valid_cmds:
+        print(f" {CROSS} 未知命令: '{_first_arg}'")
+        print(f" {INFO} 可用命令: {', '.join(sorted(_valid_cmds))}")
+        print(f" {INFO} 使用 {C.CYAN}wnad -h{C.NC} 查看详细帮助")
+        return
+
     args = parser.parse_args()
 
-    # 显示横幅
-    print(BANNER)
+    # 显示横幅（TUI 模式下跳过，由 app.py 管理）
+    if "WNAD_TUI" in os.environ:
+        pass  # app.py 负责渲染
+    else:
+        print(BANNER)
 
     # ── help / version ──
     if args.show_help or len(sys.argv) == 1:
